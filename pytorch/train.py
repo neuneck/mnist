@@ -3,6 +3,7 @@
 
 import argparse
 import os
+import sys
 
 from tqdm import tqdm, trange
 
@@ -56,14 +57,22 @@ if __name__ == "__main__":
     default_path = os.path.join(HERE, "data", "cnn.pth")
     parser.add_argument("--output-path", default=default_path)
 
-    parser.add_argument("--lr-decay", type=float, default=.9)
+    parser.add_argument("--lr-decay", type=float, default=0.9)
 
-    parser.add_argument("-p", type=bool, help="Turn off progress bars.")
+    parser.add_argument(
+        "-p", action="store_false", help="Turn off progress bars."
+    )
 
     args = parser.parse_args()
+    if not os.path.isdir(os.path.dirname(args.output_path)):
+        print(
+            "Output directory does not exist! Please create it before "
+            "running train.py"
+        )
+        sys.exit(1)
 
     net = CNN()
 
-    train(net, epochs=args.e, lr_decay=args.lr_decay)
+    train(net, epochs=args.e, lr_decay=args.lr_decay, pbar=args.p)
 
     torch.save(net.state_dict(), args.output_path)
